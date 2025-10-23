@@ -18,31 +18,77 @@ public class ObjWriter {
     public static void write(Model model, String outputPath) {
 
         try (FileWriter writer = new FileWriter(outputPath)) {
+            int counter = 0;
 
             // Запись вершин
             for (Vector3f vertex : model.vertices) {
-                writer.write(OBJ_VERTEX_TOKEN + " " + vertex.X() + " " + vertex.Y() + " " + vertex.Z());
+                writer.write(OBJ_VERTEX_TOKEN + " " + vertex.X() + " " + vertex.Y() + " " + vertex.Z() + "\n");
+                counter++;
             }
 
-            writer.write("\n");
+            if (counter > 0) {
+                writer.write("# " + counter + " vertices\n\n");
+                counter = 0;
+            }
 
             // Запись текстур вершин
             for (Vector2f vertexTexture : model.textureVertices) {
-                writer.write(OBJ_TEXTURE_TOKEN + " " + vertexTexture.X() + " " + vertexTexture.Y() + " 0.0000");
+                writer.write(OBJ_TEXTURE_TOKEN + " " + vertexTexture.X() + " " + vertexTexture.Y() + " 0.0000" + "\n");
+                counter++;
             }
 
-            writer.write("\n");
+            if (counter > 0) {
+                writer.write("# " + counter + " texture coords\n\n");
+                counter = 0;
+            }
 
             // Запись нормалей вершин
             for (Vector3f vertexNormal : model.normals) {
-                writer.write(OBJ_NORMAL_TOKEN + " " + vertexNormal.X() + " " + vertexNormal.Y() + " " + vertexNormal.Z());
+                writer.write(OBJ_NORMAL_TOKEN + " " + vertexNormal.X() + " " + vertexNormal.Y() + " " + vertexNormal.Z() + "\n");
+                counter++;
             }
+
+            if (counter > 0) {
+                writer.write("# " + counter + " normals\n\n");
+                counter = 0;
+            }
+
+            int trianglesCounter = 0;
 
             // Запись полигонов
             for (Polygon polygon : model.polygons) {
-                String string = "";
-                writer.write(OBJ_FACE_TOKEN + " " +  + " " +  + " " + );
+
+                writer.write(OBJ_FACE_TOKEN);
+
+                if (polygon.getVertexIndices().size() == 3){
+                    trianglesCounter++;
+                }
+
+                for (int i = 0; i < polygon.getVertexIndices().size(); i++) {
+                    writer.write( " " + polygon.getVertexIndices().get(i));
+
+                    if (!model.textureVertices.isEmpty()){
+                        writer.write("/" + polygon.getTextureVertexIndices().get(i));
+                    }
+
+                    if (!model.normals.isEmpty()){
+                        if (model.textureVertices.isEmpty()) {
+                            writer.write("/");
+                        }
+                        writer.write("/" + polygon.getNormalIndices().get(i));
+                    }
+                }
+
+                writer.write("\n");
+
+                counter++;
             }
+
+            if (counter > 0) {
+                writer.write("# " + counter + " polygons - " + trianglesCounter + " triangles\n\n");
+            }
+
+            System.out.println("Model saved to " + outputPath);
 
         } catch (IOException e) {
             e.printStackTrace();

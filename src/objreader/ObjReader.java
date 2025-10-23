@@ -17,6 +17,8 @@ public class ObjReader {
     private static final String OBJ_FACE_TOKEN = "f";
 
     public static Model read(String fileContent) {
+        System.out.println("Loading model ...");
+
         Model result = new Model();
 
         int lineInd = 0;
