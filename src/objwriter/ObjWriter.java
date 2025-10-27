@@ -64,15 +64,22 @@ public class ObjWriter {
                     trianglesCounter++;
                 }
 
-                for (int i = 0; i < polygon.getVertexIndices().size(); i++) {
+                int vertexCount = polygon.getVertexIndices().size();
+                boolean hasTextures = polygon.getTextureVertexIndices().size() == vertexCount;
+                boolean hasNormales = polygon.getNormalIndices().size() == vertexCount;
+
+                for (int i = 0; i < vertexCount; i++) {
+                    // Пишем ID вертекса
                     writer.write( " " + polygon.getVertexIndices().get(i));
 
-                    if (!model.textureVertices.isEmpty()){
+                    // Пишем ID текстуры
+                    if (hasTextures){
                         writer.write("/" + polygon.getTextureVertexIndices().get(i));
                     }
 
-                    if (!model.normals.isEmpty()){
-                        if (model.textureVertices.isEmpty()) {
+                    // Пишем ID нормали
+                    if (hasNormales){
+                        if (!hasTextures) {
                             writer.write("/");
                         }
                         writer.write("/" + polygon.getNormalIndices().get(i));
@@ -88,10 +95,10 @@ public class ObjWriter {
                 writer.write("# " + counter + " polygons - " + trianglesCounter + " triangles\n\n");
             }
 
-            System.out.println("Model saved to " + outputPath);
+            System.out.println("Модель успешно сохранена в " + outputPath);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Возникла ошибка при сохранении модели: " + e.getMessage());;
         }
     }
 }
